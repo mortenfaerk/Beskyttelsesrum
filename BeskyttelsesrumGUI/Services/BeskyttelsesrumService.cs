@@ -55,9 +55,12 @@ public class BeskyttelsesrumService
                 return beskyttelsesrums;
             }
         }
-        else
+        // Log detailed error information
+        var errorMessage = $"Request failed with status code {response.StatusCode} and message: {response.ErrorMessage}.";
+        if (response.Content != null)
         {
-           throw new Exception(response.ErrorMessage);
+            errorMessage += $"\nResponse Content: {response.Content}";
         }
+        throw new Exception(errorMessage);
     }
 }
