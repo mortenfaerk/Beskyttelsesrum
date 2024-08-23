@@ -1,0 +1,50 @@
+﻿@using BeskyttelsesrumGUI.Models;
+@using BeskyttelsesrumGUI.Services;
+@inject AdressValidationService _adressValidationService
+
+<AutoComplete @bind-Value="adresseQuery"
+                TItem="DAWAAutoCompleteResponse"
+                DataProvider="AdressDataProvider"
+                Placeholder="Indtast adresse"
+                OnChanged="(DAWAAutoCompleteResponse adresse) => OnAutoCompleteChanged(adresse)"
+                PropertyName="Forslagstekst" />
+                <div>
+                    <p>@statusText</p
+                </div>
+@code {
+    [Parameter]
+    public DAWAAdress? Adresse { get; set; }
+    [Parameter]
+    public EventCallback<DAWAAdress> AdresseChanged { get; set; }
+    private string statusText = string.Empty;
+    private string adresseQuery = string.Empty;
+    private async Task<AutoCompleteDataProviderResult<DAWAAutoCompleteResponse>> AdressDataProvider(AutoCompleteDataProviderRequest<DAWAAutoCompleteResponse> request)
+    {
+
+        DAWAAutoCompleteRequest dawaRequest = new DAWAAutoCompleteRequest(request.Filter.Value, 24);
+        var adresses = await _adressValidationService.GetAutoCompleteResponsesAsync(dawaRequest, request.CancellationToken);
+        return new AutoCompleteDataProviderResult<DAWAAutoCompleteResponse>
+                {
+                    Data = adresses,
+                    TotalCount = adresses.Count
+                };
+    }
+
+
+    private async Task OnAutoCompleteChanged(DAWAAutoCompleteResponse dawaResponse)
+    {
+        statusText = string.Empty;
+        if(dawaResponse.Type == DAWAType.Adresse || dawaResponse.Type == DAWAType.Adgangsadresse){
+            Adresse = dawaResponse.Data;
+            await AdresseChanged.InvokeAsync(Adresse);
+        }else
+        {
+            statusText = $"Du har valgt {dawaResponse.Forslagstekst} som er en {dawaResponse.Type} og ikke en adresse. Vælg venligst en adresse.";
+        }
+    }
+
+
+
+   
+
+}
