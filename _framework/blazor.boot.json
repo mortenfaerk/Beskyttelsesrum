@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "BeskyttelsesrumGUI",
   "resources": {
-    "hash": "sha256-r86VkLOi+UjievskmlGgKbGiv7h0/IZb98bQMeZ3TaY=",
+    "hash": "sha256-ZvqRBton9SGembKk+q80i59NKJmwJmVdZJEyGSqep/E=",
     "jsModuleNative": {
       "dotnet.native.8.0.8.gjayqabtzy.js": "sha256-LMS+lD3GeSU8nCCjdncaJTbYGyBjK2qlD2NZeq79ov4="
     },
@@ -17,7 +17,7 @@
       "icudt_no_CJK.dat": "sha256-L7sV7NEYP37/Qr2FPCePo5cJqRgTXRwGHuwF5Q+0Nfs="
     },
     "assembly": {
-      "BeskyttelsesrumGUI.wasm": "sha256-rWae5gl4jQw9+093GzUalhJAi3L8LCn+/ir4BYRDsUM=",
+      "BeskyttelsesrumGUI.wasm": "sha256-/fN5wdUzB+PNAuEar7R+ect6wvt5ZEvgy5Pa44tFY44=",
       "BlazorBootstrap.wasm": "sha256-DXl738A3nveFxYK+NWkxvHdTmicdO6btBT/VduMi0Co=",
       "Microsoft.AspNetCore.Components.Forms.wasm": "sha256-JMmtdcNlmkJl8Ody+Dx5qffKxurAKzM0ZmFrKbNOIlU=",
       "Microsoft.AspNetCore.Components.wasm": "sha256-EX4vPV3kPnW8GQwFbWz7nrCbRp695aAzUd0DPGdzYKg=",
