@@ -1,0 +1,42 @@
+﻿<span>Radius:</span>
+<br />
+<div class="d-flex flex-row mb-3">
+    @if (RangeInt != null && RangeInt > 0)
+    {
+        <RangeInput TValue="int" Value="RangeInt"
+                    ValueChanged="OnRangeIntChanged"
+                    ValueExpression="() => RangeInt"
+                    Min="@minRange" Max="@maxRange" />
+        <Badge Color="BadgeColor.Primary" Class="ms-2" VisuallyHiddenText="amount1">
+            @RangeInt Km
+        </Badge>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int maxRange { get; set; } = 50;
+
+    [Parameter]
+    public int minRange { get; set; } = 1;
+
+    [Parameter]
+    public EventCallback<int> RangeIntChanged { get; set; }
+
+    [Parameter]
+    public int RangeInt { get; set; } = 5;
+
+    protected override Task OnInitializedAsync()
+    {
+        minRange = 1;
+        maxRange = 50;
+        RangeInt = 5;
+        return base.OnInitializedAsync();
+    }
+
+    private async Task OnRangeIntChanged(int newValue)
+    {
+        RangeInt = newValue;
+        await RangeIntChanged.InvokeAsync(newValue);
+    }
+}

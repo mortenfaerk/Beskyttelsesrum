@@ -5,85 +5,93 @@
 
 
         <AdresseIndtastning @ref="@AdresseIndtastning" AdresseChanged="@HandleAddress"/>
-<label for="rangeInput">Radius:</label>
-<br />
-<div class="d-flex flex-row mb-3">
-        <RangeInput TValue="int" id="rangeInput" @bind-Value="range" Min="1" Max="50" />
-    <Badge Color="BadgeColor.Primary" Class="ms-2" VisuallyHiddenText="amount1" ValueChanged="@TryToUpdateList()">@range Km</Badge>
-</div>
+        <DistanceSelector maxRange="50" minRange="1" RangeIntChanged="@TryToUpdateList"/>
+
 @if (Beskyttelsesrum != null)
 {
     @if (Beskyttelsesrum.Count() > 0)
     {
-    <Grid TItem="BbrBeskyttelsesrum" Class="table table-hover table-bordered table-striped" AllowPaging="true" PageSize="10" Responsive="true" Data="@Beskyttelsesrum" AllowSorting="true">
+    <Grid TItem="BeskyttelsesrumViewModel" Class="table table-hover table-bordered table-striped" AllowPaging="true" PageSize="10" Responsive="true" Data="@Beskyttelsesrum" AllowSorting="true">
         <GridColumns>
-            <GridColumn TItem="BbrBeskyttelsesrum" HeaderText="Adresse" PropertyName="Adresse" SortKeySelector="item => item.Adresse">
-                @context.Adresse
+                <GridColumn TItem="BeskyttelsesrumViewModel" HeaderText="Adresse" PropertyName="Adresse" SortKeySelector="item => item.BbrBeskyttelserum.Adresse">
+                @context.BbrBeskyttelserum.Adresse
             </GridColumn>
-            <GridColumn TItem="BbrBeskyttelsesrum" HeaderText="Antal pladser" PropertyName="SikringsrumAnt" SortKeySelector="item => item.SikringsrumAnt">
-                @context.SikringsrumAnt
+                <GridColumn TItem="BeskyttelsesrumViewModel" HeaderText="Antal pladser" PropertyName="SikringsrumAnt" SortKeySelector="item => item.BbrBeskyttelserum.SikringsrumAnt">
+                @context.BbrBeskyttelserum.SikringsrumAnt
+                </GridColumn>
+            <GridColumn TItem="BeskyttelsesrumViewModel" HeaderText="Afstand" PropertyName="Afstand" SortKeySelector="item => item.Distance" IsDefaultSortColumn="true" SortDirection="SortDirection.Ascending">
+                    @context.DistanceFormatted Km
             </GridColumn>
         </GridColumns>
         </Grid>
     }
-    else if(!WaitingForResponse)
+}
+else if(!WaitingForResponse && Adresse != null)
     {
         <span>Der blev ikke fundet nogen beskyttelserum inden for @_selectedRange Km af @Adresse.Adresseringsvejnavn</span>
-    }else{
+    }else if(WaitingForResponse){
         <span>Henter beskyttelsesrum</span>
     }
-}
+
 @code {
     private AdresseIndtastning AdresseIndtastning = default!;
     private DAWAAdress? Adresse;
-    private IEnumerable<BbrBeskyttelsesrum>? Beskyttelsesrum;
-    private HashSet<BbrBeskyttelsesrum> selectedBeskyttelsesrum = new();
-    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-    private int _selectedRange = 5;
-    private bool WaitingForResponse;
-    private int range
+    private List<BeskyttelsesrumViewModel>? Beskyttelsesrum;
+    private HashSet<BeskyttelsesrumViewModel> selectedBeskyttelsesrum = new();
+    private int _selectedRangeBackingField;
+
+    private int _selectedRange
     {
-        get => _selectedRange;
+        get => _selectedRangeBackingField;
         set
         {
-            _selectedRange = value;
-            TryToUpdateList();
+            if (_selectedRangeBackingField != value)
+            {
+                _selectedRangeBackingField = value;
+                TryToUpdateList();
+            }
         }
+    }
+    private bool WaitingForResponse = false;
+
+    protected override Task OnInitializedAsync()
+    {
+        _selectedRange = 5;
+        return base.OnInitializedAsync();
     }
     private async Task TryToUpdateList()
     {
-
-
-
-
-        if (Adresse != null)
+        if (Adresse == null)
         {
-            try
-            {
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource.Dispose(); // Dispose the old CancellationTokenSource
-                _cancellationTokenSource = new CancellationTokenSource();
-                var token = _cancellationTokenSource.Token;
-                WaitingForResponse = true;
-                Beskyttelsesrum = await _beskyttelsesrumService.GetBeskyttelsesrumsAsync(Adresse, token, _selectedRange * 1000);
-                WaitingForResponse = false;
-            }
-            catch (OperationCanceledException)
-            {
+            return;
+        }
 
-            }
-            catch (Exception ex)
+        try
+        {
+            Beskyttelsesrum = null;
+            WaitingForResponse = true;
+            var beskytRum = await _beskyttelsesrumService.GetBeskyttelsesrumsAsync(Adresse, _selectedRange * 1000);
+            Beskyttelsesrum = new List<BeskyttelsesrumViewModel>();
+            foreach (BbrBeskyttelsesrum rum in beskytRum)
             {
+                BeskyttelsesrumViewModel viewModel = new(Adresse, rum, _beskyttelsesrumService);
+                Beskyttelsesrum.Add(viewModel);
             }
+            WaitingForResponse = false;
+        }
+       
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"An error occurred: {ex.Message}");
+        }
+        finally
+        {
+            WaitingForResponse = false;
         }
     }
     private async Task HandleAddress(DAWAAdress adresse)
     {
         Adresse = adresse;
         await TryToUpdateList();
-    }
-    public void Dispose()
-    {
-        _cancellationTokenSource.Dispose();
     }
 }

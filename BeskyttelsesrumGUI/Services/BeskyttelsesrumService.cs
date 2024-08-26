@@ -4,11 +4,13 @@ using System.Xml.Serialization;
 using ProjNet.CoordinateSystems.Transformations;
 using ProjNet.CoordinateSystems;
 using System.Globalization;
+using GeoCoordinatePortable;
 namespace BeskyttelsesrumGUI.Services;
+
 
 public class BeskyttelsesrumService
 {
-    public async Task<List<BbrBeskyttelsesrum>> GetBeskyttelsesrumsAsync(DAWAAdress adresse, CancellationToken cancellationToken, int range = 1000)
+    public async Task<List<BbrBeskyttelsesrum>> GetBeskyttelsesrumsAsync(DAWAAdress adresse, int range = 1000)
     {
         List<BbrBeskyttelsesrum> beskyttelsesrums = new List<BbrBeskyttelsesrum>();
 
@@ -31,11 +33,13 @@ public class BeskyttelsesrumService
         string cqlFilter = string.Format(CultureInfo.InvariantCulture,
             "DWithin(geometri,POINT({0} {1}),{2},meters)",
             utmCoordinates[0], utmCoordinates[1], range);
+        var points = GetLocationFromGMLPoint(new GmlPoint { Pos = $"{utmCoordinates[0]} {utmCoordinates[1]} " });
+        var points2 = GetLocationFromGMLPoint(new GmlPoint { Pos = $"{utmCoordinates[1]} {utmCoordinates[0]} " });
         request.AddParameter("cql_filter", cqlFilter);
 
         try
         {
-            var response = await client.ExecuteAsync(request, cancellationToken);
+            var response = await client.ExecuteAsync(request);
 
             if (response.IsSuccessful)
             {
@@ -59,16 +63,22 @@ public class BeskyttelsesrumService
                 throw new Exception(errorMessage);
             }
         }
-        catch (OperationCanceledException)
-        {
-            // Handle cancellation gracefully and avoid logging it as an error
-            // Log or handle the cancellation if needed, but do not throw an error
-        }
         catch (Exception ex)
         {
 
         }
-
         return beskyttelsesrums;
+    }
+    public Location GetLocationFromGMLPoint(GmlPoint point)
+    {
+        var utm32N = ProjectedCoordinateSystem.WGS84_UTM(32, true);
+        var wgs84 = GeographicCoordinateSystem.WGS84;
+        var transformation = new CoordinateTransformationFactory()
+                                .CreateFromCoordinateSystems(utm32N, wgs84);
+        var transformed = transformation.MathTransform.Transform(new[] { point.Easting, point.Northing });
+
+        double latitude = transformed[1];
+        double longitude = transformed[0];
+        return new Location(latitude, longitude);
     }
 }

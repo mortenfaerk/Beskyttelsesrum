@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml.Serialization;
 
 [XmlRoot(ElementName = "FeatureCollection", Namespace = "http://www.opengis.net/wfs")]
@@ -74,4 +75,13 @@ public class GmlPoint
 
     [XmlAttribute("srsDimension")]
     public int SrsDimension { get; set; }
+
+    public double Easting { get
+        {
+            return Convert.ToDouble(Pos.Split(" ")[0], CultureInfo.InvariantCulture);
+        } }
+    public double Northing { get
+        {
+            return Convert.ToDouble(Pos.Split(" ")[1], CultureInfo.InvariantCulture);
+        } }
 }
