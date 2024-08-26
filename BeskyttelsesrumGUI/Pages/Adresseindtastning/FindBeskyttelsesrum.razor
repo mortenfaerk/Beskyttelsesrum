@@ -5,7 +5,7 @@
 
 
         <AdresseIndtastning @ref="@AdresseIndtastning" AdresseChanged="@HandleAddress"/>
-        <DistanceSelector maxRange="50" minRange="1" RangeIntChanged="@TryToUpdateList"/>
+        <DistanceSelector maxRange="50" minRange="1" @ref="@distanceSelector" RangeIntChanged="@TryToUpdateList"/>
 
 @if (Beskyttelsesrum != null)
 {
@@ -25,11 +25,11 @@
         </GridColumns>
         </Grid>
     }
+    else{
+        <span>Der blev ikke fundet nogen beskyttelserum inden for @distanceSelector.RangeInt Km af @Adresse.Adresseringsvejnavn @Adresse.HusNr</span>
+    }
 }
-else if(!WaitingForResponse && Adresse != null)
-    {
-        <span>Der blev ikke fundet nogen beskyttelserum inden for @_selectedRange Km af @Adresse.Adresseringsvejnavn</span>
-    }else if(WaitingForResponse){
+else if(WaitingForResponse){
         <span>Henter beskyttelsesrum</span>
     }
 
@@ -39,24 +39,11 @@ else if(!WaitingForResponse && Adresse != null)
     private List<BeskyttelsesrumViewModel>? Beskyttelsesrum;
     private HashSet<BeskyttelsesrumViewModel> selectedBeskyttelsesrum = new();
     private int _selectedRangeBackingField;
-
-    private int _selectedRange
-    {
-        get => _selectedRangeBackingField;
-        set
-        {
-            if (_selectedRangeBackingField != value)
-            {
-                _selectedRangeBackingField = value;
-                TryToUpdateList();
-            }
-        }
-    }
+    private DistanceSelector distanceSelector = default!;
     private bool WaitingForResponse = false;
 
     protected override Task OnInitializedAsync()
     {
-        _selectedRange = 5;
         return base.OnInitializedAsync();
     }
     private async Task TryToUpdateList()
@@ -70,7 +57,7 @@ else if(!WaitingForResponse && Adresse != null)
         {
             Beskyttelsesrum = null;
             WaitingForResponse = true;
-            var beskytRum = await _beskyttelsesrumService.GetBeskyttelsesrumsAsync(Adresse, _selectedRange * 1000);
+            var beskytRum = await _beskyttelsesrumService.GetBeskyttelsesrumsAsync(Adresse, distanceSelector.RangeInt * 1000);
             Beskyttelsesrum = new List<BeskyttelsesrumViewModel>();
             foreach (BbrBeskyttelsesrum rum in beskytRum)
             {
