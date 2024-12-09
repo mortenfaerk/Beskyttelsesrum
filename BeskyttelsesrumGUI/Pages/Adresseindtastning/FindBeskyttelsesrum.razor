@@ -3,11 +3,13 @@
 @using BeskyttelsesrumGUI.Services;
 @inject BeskyttelsesrumService _beskyttelsesrumService;
 @inject IJSRuntime JSRuntime
-
 @if (IsFirefox)
 {
-    <p style="color:red">Siden virker muligvis ikke i Firefox</p>
+    <div class="alert alert-danger" role="alert">
+        Siden virker muligvis ikke i Firefox
+    </div>
 }
+<p>Adresse:</p>
 <AdresseIndtastning @ref="@AdresseIndtastning" AdresseChanged="@HandleAddress"/>
         <DistanceSelector maxRange="50" minRange="1" @ref="@distanceSelector" RangeIntChanged="@TryToUpdateList"/>
 
@@ -47,6 +49,7 @@ else if(WaitingForResponse){
     private bool WaitingForResponse = false;
     private bool IsFirefox;
 
+   
     protected override async Task OnInitializedAsync()
     {
         IsFirefox = await IsUserAgentFirefox();
