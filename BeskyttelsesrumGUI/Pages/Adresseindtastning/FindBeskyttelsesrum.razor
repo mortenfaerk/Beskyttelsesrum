@@ -11,7 +11,7 @@
 {
     @if (Beskyttelsesrum.Count() > 0)
     {
-    <Grid TItem="BeskyttelsesrumViewModel" Class="table table-hover table-bordered table-striped" AllowPaging="true" PageSize="10" Responsive="true" Data="@Beskyttelsesrum" AllowSorting="true">
+    <Grid TItem="BeskyttelsesrumViewModel" Class="table table-hover table-bordered table-striped" AllowPaging="true" PageSize="5" Responsive="true" Data="@Beskyttelsesrum" AllowSorting="true">
         <GridColumns>
                 <GridColumn TItem="BeskyttelsesrumViewModel" HeaderText="Adresse" PropertyName="Adresse" SortKeySelector="item => item.BbrBeskyttelserum.Adresse">
                 @context.BbrBeskyttelserum.Adresse
@@ -26,7 +26,7 @@
         </Grid>
     }
     else{
-        <span>Der blev ikke fundet nogen beskyttelserum inden for @distanceSelector.RangeInt Km af @Adresse.Adresseringsvejnavn @Adresse.HusNr</span>
+        <span>Der blev ikke fundet nogen beskyttelserum inden for @distanceSelector.RangeInt Km af @Adresse?.Adresseringsvejnavn @Adresse?.HusNr</span>
     }
 }
 else if(WaitingForResponse){
