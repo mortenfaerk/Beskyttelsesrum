@@ -2,9 +2,13 @@
 @using BeskyttelsesrumGUI.Models;
 @using BeskyttelsesrumGUI.Services;
 @inject BeskyttelsesrumService _beskyttelsesrumService;
+@inject IJSRuntime JSRuntime
 
-
-        <AdresseIndtastning @ref="@AdresseIndtastning" AdresseChanged="@HandleAddress"/>
+@if (IsFirefox)
+{
+    <p style="color:red">Siden virker muligvis ikke i Firefox</p>
+}
+<AdresseIndtastning @ref="@AdresseIndtastning" AdresseChanged="@HandleAddress"/>
         <DistanceSelector maxRange="50" minRange="1" @ref="@distanceSelector" RangeIntChanged="@TryToUpdateList"/>
 
 @if (Beskyttelsesrum != null)
@@ -41,10 +45,11 @@ else if(WaitingForResponse){
     private int _selectedRangeBackingField;
     private DistanceSelector distanceSelector = default!;
     private bool WaitingForResponse = false;
+    private bool IsFirefox;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        return base.OnInitializedAsync();
+        IsFirefox = await IsUserAgentFirefox();
     }
     private async Task TryToUpdateList()
     {
@@ -80,5 +85,9 @@ else if(WaitingForResponse){
     {
         Adresse = adresse;
         await TryToUpdateList();
+    }
+    private async Task<bool> IsUserAgentFirefox()
+    {
+        return await JSRuntime.InvokeAsync<bool>("checkIfFirefox");
     }
 }
