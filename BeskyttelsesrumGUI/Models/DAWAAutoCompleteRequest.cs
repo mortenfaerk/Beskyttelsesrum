@@ -33,6 +33,7 @@ public class DAWAAutoCompleteRequest
         Caretpos = caretpos;
         PerSide = perSide;
         Side = side;
+        Kommunekode = new List<string> { "657", "756", "760" }; //Only search Herning, Ikast-Brand and Ringkøbing-Skjern adresses
     }
 }
 

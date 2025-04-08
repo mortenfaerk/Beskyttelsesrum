@@ -23,13 +23,21 @@ public class AdressValidationService
             restRequest.AddQueryParameter("q", request.Q);
             restRequest.AddQueryParameter("per_side", request.PerSide);
             restRequest.AddQueryParameter("side", request.Side);
-
-            var response = await Client.ExecuteAsync(restRequest, cancellationToken);
+            if (request.Kommunekode != null && request.Kommunekode.Any())
+            {
+                var kommunekodeValue = string.Join("|", request.Kommunekode.Select(k => k.PadLeft(4, '0')));
+                restRequest.AddQueryParameter("kommunekode", kommunekodeValue);
+            }
+            RestResponse response = await Client.ExecuteAsync(restRequest, cancellationToken);
 
             if (!response.IsSuccessful)
                 throw new Exception(response.ErrorMessage);
+            if(response.Content == null)
+                throw new Exception("No data found");
             var autoCompleteResponse = JsonConvert.DeserializeObject<List<DAWAAutoCompleteResponse>>(response.Content);
-            return autoCompleteResponse;
+            if(autoCompleteResponse != null)
+                return autoCompleteResponse;
+            throw new Exception("No data found");
         }
         catch (OperationCanceledException)
         {
