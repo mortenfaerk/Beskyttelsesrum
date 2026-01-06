@@ -152,7 +152,17 @@ New-Item -Path .nojekyll -ItemType File
 
 ### 6. Deploy til GitHub Pages
 
-#### Option A: Manuel Deployment
+#### Manuel Deployment
+
+- Publish projektet 'BeskyttelsesrumGUI' til en mappe.
+- Åben mappen og kopier indholdet af wwwroot til en anden mappe
+- Tjek gh-pages branchen ud af repositoriet
+
+```powershell
+git checkout gh-pages
+```
+
+- Kopier indholdet af wwwroot mappen ind i din mappe.
 
 ```powershell
 # Initialiser git i publish/wwwroot mappen
@@ -164,54 +174,11 @@ git remote add origin https://github.com/dit-brugernavn/dit-repository.git
 git push -f origin gh-pages
 ```
 
-#### Option B: GitHub Actions (Ikke forsøgt anvendt)
-
-Opret `.github/workflows/deploy.yml` i roden af dit repository:
-
-```yaml
-name: Deploy to GitHub Pages
-
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build and publish
-        run: dotnet publish BeskyttelsesrumGUI/BeskyttelsesrumGUI.csproj -c Release -o release --nologo
-
-      - name: Add .nojekyll file
-        run: touch release/wwwroot/.nojekyll
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: release/wwwroot
-          force_orphan: true
-```
-
-### 7. Aktiver GitHub Pages
-
-1. Gå til dit repository på GitHub
-2. Klik på **Settings** > **Pages**
-3. Under "Source", vælg `gh-pages` branch
-4. Klik "Save"
-
 Din applikation vil være tilgængelig på: `https://dit-brugernavn.github.io/dit-repository-navn/`
+
+#### Automatisk deployment
+
+Det burde være muligt at opsætte en GitHub action, der kan bruges til at automatisere ovenstående logik, i tilfælde af opdateringer skubbe til main branchen. Opdatering har dog indtil nu, være for få til at det er besværet værd.
 
 ### Vigtige Noter for GitHub Pages
 
