@@ -117,64 +117,35 @@ BeskyttelsesrumGUI/
 
 Følg disse trin for at deploye applikationen til GitHub Pages:
 
-### 1. Forbered Repository
-
-Sørg for at dit GitHub repository er konfigureret, og at du har push-adgang.
-
-### 2. Opdater Base Path
-
-I `wwwroot/index.html`, opdater `<base>` tag til at matche dit repository-navn:
-
-```html
-<base href="/dit-repository-navn/" />
-```
-
-### 3. Tilføj 404-håndtering
-
-Projektet inkluderer allerede `404.html` i `wwwroot/`-mappen, som håndterer routing til GitHub Pages.
-
-### 4. Build Projektet til Release
-
-```powershell
-cd BeskyttelsesrumGUI
-dotnet publish -c Release -o ../publish
-```
-
-### 5. Forbered Deployment-mappe
-
-```powershell
-# Kopier alle filer fra wwwroot
-cd ../publish/wwwroot
-
-# Tilføj .nojekyll fil for at undgå Jekyll-processing
-New-Item -Path .nojekyll -ItemType File
-```
-
-### 6. Deploy til GitHub Pages
-
 #### Manuel Deployment
 
 - Publish projektet 'BeskyttelsesrumGUI' til en mappe.
 - Åben mappen og kopier indholdet af wwwroot til en anden mappe
+- I `wwwroot/index.html`, opdater `<base>` tag til at matche dit repository-navn fx:
+
+```html
+<base href="/Beskyttelsesrum/" />
+```
+
 - Tjek gh-pages branchen ud af repositoriet
 
 ```powershell
 git checkout gh-pages
 ```
 
-- Kopier indholdet af wwwroot mappen ind i din mappe.
+- Kopier indholdet af wwwroot mappen ind i din repository mappe.
+- commit og push nu ændringerne til dit repository:
 
 ```powershell
-# Initialiser git i publish/wwwroot mappen
-git init
-git add -A
-git commit -m "Deploy to GitHub Pages"
-git branch -M gh-pages
-git remote add origin https://github.com/dit-brugernavn/dit-repository.git
-git push -f origin gh-pages
+git add .
+git commit -m "besked om opdateringen her"
+git push
 ```
 
-Din applikation vil være tilgængelig på: `https://dit-brugernavn.github.io/dit-repository-navn/`
+- Du kan nu holde øje med processeringen af din gh-pages opdatering på /actions siden på dit repository:
+  https://github.com/dit-brugernavn/dit-repository-navn/actions
+
+Din applikation vil, efter processering, være tilgængelig på: `https://dit-brugernavn.github.io/dit-repository-navn/`
 
 #### Automatisk deployment
 
